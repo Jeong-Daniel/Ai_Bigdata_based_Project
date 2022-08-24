@@ -32,31 +32,32 @@ $btn.onclick = async function (event) {
 
             // 녹음이 종료되면, 배열에 담긴 오디오 데이터(Blob)들을 합친다: 코덱도 설정해준다.
             const blob = new Blob(audioArray, { "type": "audio/ogg  codecs=opus" });
-            //const blob = new Blob(audioArray, { "type": "audio/wav" });
-            //const blob = new Blob(audioArray, { "type": "audio/wav; codecs=MS_PCM" });
-            audioArray.splice(0); // 기존 오디오 데이터들은 모두 비워 초기화한다.
+            // //const blob = new Blob(audioArray, { "type": "audio/wav" });
+            // //const blob = new Blob(audioArray, { "type": "audio/wav; codecs=MS_PCM" });
+            // audioArray.splice(0); // 기존 오디오 데이터들은 모두 비워 초기화한다.
 
-            // Blob 데이터에 접근할 수 있는 주소를 생성한다.
+            // // Blob 데이터에 접근할 수 있는 주소를 생성한다.
             const blobURL = window.URL.createObjectURL(blob);
 
-            // audio엘리먼트로 재생한다.
+            // // audio엘리먼트로 재생한다.
             $audioEl.src = blobURL;
             $audioEl.play();
 
-            var fData = new FormData()
-            fData.append('file', blob, 'a.wav')
-            fetch(`http://127.0.0.1:5000/predict`, {method:"POST", body:fData})
-            .then(response => {
-                if (response.ok) return response;
-                else throw Error(`Server returned ${response.status}: ${response.statusText}`)
-            })
-            .then((response) => response.json())
-            .then((data) => {
-                document.querySelector("#result").innerHTML = data.result == 1 ? `경상도 사투리 입니다.` : `경상도 사투리가 아닙니다.`;
-            })
-            .catch(err => {
-                alert(err);
-            });
+            // var fData = new FormData()
+            // fData.append('file', blob, 'a.wav')
+            // fetch(`http://127.0.0.1:5000/predict`, {method:"POST", body:fData})
+            // .then(response => {
+            //     if (response.ok) return response;
+            //     else throw Error(`Server returned ${response.status}: ${response.statusText}`)
+            // })
+            // .then((response) => response.json())
+            // .then((data) => {
+            //     document.querySelector("#result").innerHTML = data.result == 1 ? `경상도 사투리 입니다.` : `경상도 사투리가 아닙니다.`;
+            // })
+            // .catch(err => {
+            //     alert(err);
+            // });
+
         }
 
         // 녹음 시작
@@ -80,11 +81,11 @@ const handleVideoData = (e) => {
     // console.log( data )
 
     // // 다운로드를 위해 a 태그를 만들어주고 href로 해당 data를 다운로드 받을 수 있게 url을 만듭시다
-    const audioDownloadLink = document.createElement("a");
-    audioDownloadLink.href = URL.createObjectURL(data);
-    audioDownloadLink.download = "Audio.wav";
-    document.body.appendChild(audioDownloadLink);
-    audioDownloadLink.click();
+    // const audioDownloadLink = document.createElement("a");
+    // audioDownloadLink.href = URL.createObjectURL(data);
+    // audioDownloadLink.download = "Audio.wav";
+    // document.body.appendChild(audioDownloadLink);
+    // audioDownloadLink.click();
 
     //const audioUrl = URL.createObjectURL(audioBlob);
     /*
@@ -106,3 +107,74 @@ const handleVideoData = (e) => {
 
 };
 
+function ajax(obj){
+	
+	const xhr = new XMLHttpRequest();
+	
+	var method = obj.method || 'GET';
+	var url = obj.url || '';
+	var data = obj.data || null;
+	
+	/* 성공/에러 */
+	xhr.addEventListener('load', function() {
+		
+		const data = xhr.responseText;
+		
+		if(obj.load)
+			obj.load(data);
+	});
+	
+	/* 성공 */
+	xhr.addEventListener('loadend', function() {
+		
+		const data = xhr.responseText;
+		
+		//console.log(data);
+		
+		if(obj.loadend)
+			obj.loadend(data);
+	});
+	
+	/* 실패 */
+	xhr.addEventListener('error', function() {
+		
+		console.log('Ajax 중 에러 발생 : ' + xhr.status + ' / ' + xhr.statusText);
+		
+		if(obj.error){
+			obj.error(xhr, xhr.status, xhr.statusText);
+		}
+	});
+	
+	/* 중단 */
+	xhr.addEventListener('abort', function() {
+		
+		if(obj.abort){
+			obj.abort(xhr);
+		}
+	});
+	
+	/* 진행 */
+	xhr.upload.addEventListener('progress', function() {
+		
+		if(obj.progress){
+			obj.progress(xhr);
+		}
+	});
+	
+	/* 요청 시작 */
+	xhr.addEventListener('loadstart', function() {
+		
+		if(obj.loadstart)
+			obj.loadstart(xhr);
+	});
+	
+	if(obj.async === false)
+		xhr.open(method, url, obj.async);
+	else
+		xhr.open(method, url, true);
+	
+	if(obj.contentType)
+		xhr.setRequestHeader('Content-Type', obj.contentType);	
+		
+	xhr.send(data);	
+}

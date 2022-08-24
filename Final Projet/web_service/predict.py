@@ -8,6 +8,7 @@ import warnings
 warnings.filterwarnings("ignore")
 from keras.models import load_model
 import json
+import os
 
 def load_data(paths):
     result = []
@@ -25,6 +26,9 @@ def get_feature(data, sr = 16000, n_fft = 256, win_length = 200, hop_length = 16
     mel.append(mel_)
     mel = np.array(mel)
     mel = librosa.power_to_db(mel, ref = np.max)
+    mel_mean = -67.93278
+    mel_std = 17.33855
+    mel = (mel - mel_mean) / mel_std
     return mel
 
 #음성들의 길이를 맞춰줌
@@ -37,24 +41,18 @@ def set_length(data, d_mini):
 
 
 def main():
-    print( 1 )
     voice_path  = glob("./*.wav")
-    print( 2 )
+    print( voice_path )
     voice_path  = load_data(voice_path)
-    print( 3 )
     voice_path  = np.array(voice_path)
-    print( 4 )
     mini        = 12320
-    print( 5 )
     voice_path  = set_length(voice_path, mini)
-    print( 6 )
     result      = get_feature(voice_path)
-    print( 7 )
     #result = result.reshape(result.shape[2], result.shape[1],  -1, 1)
     result      = result.reshape(-1, 64, 78, 1)    
-    print( 8 )
     model       = load_model('voice.h5')
-    print( 9 )
+    # 파일 삭제
+    os.remove("upload0.wav")
     return model.predict(result)
 
 if __name__ == '__main__':

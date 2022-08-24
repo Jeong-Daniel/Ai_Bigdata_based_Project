@@ -11,8 +11,8 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     files = request.files
-    file  = files.get('file')
-    # file.save('upload0.wav')
+    file  = files.get('uploadFile')
+    file.save('upload0.wav')
 
     # audio = file.stream.read()
 
@@ -21,6 +21,7 @@ def predict():
     #     f.write(audio)
 
     res = main()
+    print( res )
     print( res, {'code':1, 'result':f"{res[0][0]}" } )    
     return jsonify( {'code':1, 'result':f"{res[0][0]}" } )
 
